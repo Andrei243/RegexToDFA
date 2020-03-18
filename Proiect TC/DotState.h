@@ -25,7 +25,7 @@ public:
 		stateLeft->calculateFollowers(followersMatrix);
 		stateRight->calculateFollowers(followersMatrix);
 		for (int i : stateLeft->lastPos()) {
-			for (int j : stateRight->firstPos) {
+			for (int j : stateRight->firstPos()) {
 				followersMatrix[i].push_back(j);
 			}
 		}
