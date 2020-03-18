@@ -2,7 +2,14 @@
 #include "State.h"
 
 class NodeState :public State {
+	int position;
+	char character;
 public:
+	NodeState(int position, char character) {
+		this->position = position;
+		this->character = character;
+	}
+
 	bool isNullable() {
 		return false;
 	}

@@ -13,12 +13,14 @@
 using namespace std;
 
 enum TypeOfCharacter { star, bar, dot, chara, paranthesisLeft, paranthesisRight };
-
+std::vector<NodeState*> letterStates;
 
 TypeOfCharacter returnCharState(char x) {
 	switch (x) {
 	case '*':
 		return star;
+	case '.':
+		return dot;
 	case '|':
 		return bar;
 	case '(':
@@ -32,10 +34,50 @@ TypeOfCharacter returnCharState(char x) {
 
 }
 
-//State* convertStringToRegex(string regex) {
-//
-//
-//}
+State* convertRegexToTree(string regex) {
+	std::vector<State*> states;
+	for (int i = 0; i < regex.size(); i++) {
+		char character = regex[i];
+		TypeOfCharacter type = returnCharState(character);
+		switch (type) {
+		case chara: {
+			NodeState* state = new NodeState(letterStates.size(), character);
+			
+			letterStates.push_back(state);
+			states.push_back(state);
+			break;
+		}
+		case star: {
+			State* lastState = states[states.size() - 1];
+			states.pop_back();
+			StarState* newState = new StarState(lastState);
+			states.push_back(newState);
+			break;
+		}
+		case dot : {
+			State* leftState = states[states.size() - 2];
+			State* rightState = states[states.size() - 1];
+			states.pop_back();
+			states.pop_back();
+			DotState* newState = new DotState(leftState, rightState);
+			states.push_back(newState);
+			break;
+		}
+		case bar: {
+			State* leftState = states[states.size() - 2];
+			State* rightState = states[states.size() - 1];
+			states.pop_back();
+			states.pop_back();
+			OrState* newState = new OrState(leftState, rightState);
+			states.push_back(newState);
+			break;
+		}
+		}
+
+	}
+	return states[0];
+
+}
 
 int findRightParanthesis(string characters, int offset) {
 	int leftParanthesisFound = 0;
@@ -84,9 +126,8 @@ string convertRegexToPolishForm(string regex) {
 			string str;
 			str.append(convertRegexToPolishForm(interior));
 			i += interior.size() + 2;
-			if (i < regex.size() - 1 && regex[i + 1] == '*') {
+			if (i < regex.size() - 1 && regex[i] == '*') {
 				str.append("*");
-				i++;
 			}
 			if (polish != ""){
 				str.append("."); 
@@ -109,9 +150,17 @@ int main()
 	ifstream in("regex.txt", ifstream::in);
 	string regex;
 	in >> regex;
+	regex += "#";
 	string polish = convertRegexToPolishForm(regex);
 
+	State* state = convertRegexToTree(polish);
+
 	in.close();
+
+	vector<vector<int>> vec(letterStates.size(), vector<int>());
+
+	state->calculateFollowers(vec);
+	return 0;
 
 }
 

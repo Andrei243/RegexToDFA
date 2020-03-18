@@ -12,9 +12,6 @@ std::vector<int>appendUnique(std::vector<int> left, std::vector<int> right) {
 
  class State {
  public:
-     int position;
-     
-
      virtual bool isNullable() = 0;
      virtual std::vector<int> firstPos() = 0;
      virtual std::vector<int> lastPos() = 0;

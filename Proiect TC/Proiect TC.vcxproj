@@ -157,6 +157,9 @@
     <ClInclude Include="StarState.h" />
     <ClInclude Include="State.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="regex.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
