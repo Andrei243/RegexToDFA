@@ -9,11 +9,16 @@
 #include "NodeState.h"
 #include "OrState.h"
 #include "StarState.h"
+#include <map>
+#include <set>
+#include <queue>
 
 using namespace std;
 
 enum TypeOfCharacter { star, bar, dot, chara, paranthesisLeft, paranthesisRight };
-std::vector<NodeState*> letterStates;
+std::vector<char> letterOnPosition;
+std::set<char> letters;
+
 
 TypeOfCharacter returnCharState(char x) {
 	switch (x) {
@@ -34,6 +39,7 @@ TypeOfCharacter returnCharState(char x) {
 
 }
 
+
 State* convertRegexToTree(string regex) {
 	std::vector<State*> states;
 	for (int i = 0; i < regex.size(); i++) {
@@ -41,9 +47,9 @@ State* convertRegexToTree(string regex) {
 		TypeOfCharacter type = returnCharState(character);
 		switch (type) {
 		case chara: {
-			NodeState* state = new NodeState(letterStates.size(), character);
-			
-			letterStates.push_back(state);
+			NodeState* state = new NodeState(letterOnPosition.size(), character);
+			letters.insert(character);
+			letterOnPosition.push_back(character);
 			states.push_back(state);
 			break;
 		}
@@ -54,7 +60,7 @@ State* convertRegexToTree(string regex) {
 			states.push_back(newState);
 			break;
 		}
-		case dot : {
+		case dot: {
 			State* leftState = states[states.size() - 2];
 			State* rightState = states[states.size() - 1];
 			states.pop_back();
@@ -129,8 +135,8 @@ string convertRegexToPolishForm(string regex) {
 			if (i < regex.size() - 1 && regex[i] == '*') {
 				str.append("*");
 			}
-			if (polish != ""){
-				str.append("."); 
+			if (polish != "") {
+				str.append(".");
 			}
 			polish.append(str);
 			break; }
@@ -154,23 +160,85 @@ int main()
 	string polish = convertRegexToPolishForm(regex);
 
 	State* state = convertRegexToTree(polish);
-
+	letters.erase('#');
 	in.close();
 
-	vector<vector<int>> vec(letterStates.size(), vector<int>());
+	vector<vector<int>> vec(letterOnPosition.size(), vector<int>());
 
 	state->calculateFollowers(vec);
+
+
+	map<int, map<char, int>> automata;
+	map<set<int>, int> statesToState;
+	queue<set<int>> currentStates;
+
+
+	vector<int> firstStatesVector = state->firstPos();
+	set<int> firstState = set<int>(firstStatesVector.begin(), firstStatesVector.end());
+
+	int currentState = 0;
+	statesToState.insert(pair<set<int>, int>(firstState, currentState));
+	currentStates.push(firstState);
+	currentState++;
+
+
+	while (!currentStates.empty()) {
+		set<int> positions = currentStates.front();
+		currentStates.pop();
+		int position = statesToState[positions];
+
+
+		for (char c : letters) {
+			set<int> nextState;
+			for (int position : positions) {
+				if (letterOnPosition[position] == c) {
+					vector<int>followPos = vec[position];
+					for (int follow : followPos) {
+						nextState.insert(follow);
+					}
+
+				}
+
+			}
+			if (statesToState.find(nextState) == statesToState.end()) {
+				statesToState.insert(pair<set<int>, int>(nextState, currentState));
+				automata[position].insert(pair<char, int>(c, currentState));
+				currentState++;
+				currentStates.push(nextState);
+			}
+			else {
+				automata[position][c] = statesToState[nextState];
+			}
+		}
+
+
+	}
+
+	cout << "Literele alfabetului sunt: ";
+	for (char c : letters) {
+		cout << c << " ";
+	}
+	cout << '\n';
+	cout << "Starile automatului sunt: ";
+	for (pair<set<int>, int> c : statesToState) {
+		cout << "q" << c.second << "  ";
+	}
+	cout << "cu statea initiala q0 si starile finale: ";
+	for (pair<set<int>, int> c : statesToState) {
+		if (c.first.find(letterOnPosition.size() - 1) != c.first.end()) {
+			cout << "q" << c.second << "  ";
+		}
+	}
+	cout << '\n' << "Tranzitiile sunt urmatoarele: \n";
+
+	for (pair<int, map<char, int>> translatie : automata) {
+		for (pair<char, int> rezultant : translatie.second) {
+			cout << "q" << translatie.first << " -" << rezultant.first << "> q" << rezultant.second << '\n';
+		}
+
+	}
+
 	return 0;
 
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

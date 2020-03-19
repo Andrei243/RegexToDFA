@@ -15,11 +15,11 @@ public:
 		return stateLeft->isNullable() && stateRight->isNullable();
 	}
 	std::vector<int> firstPos() {
-		return appendUnique(stateLeft->firstPos(), !isNullable() ? std::vector<int>() : stateRight->firstPos());
+		return appendUnique(stateLeft->firstPos(), !stateLeft->isNullable() ? std::vector<int>() : stateRight->firstPos());
 	}
 
 	std::vector<int> lastPos() {
-		return appendUnique(stateRight->lastPos(), !isNullable() ? std::vector<int>() : stateLeft->lastPos());
+		return appendUnique(stateRight->lastPos(), !stateRight->isNullable() ? std::vector<int>() : stateLeft->lastPos());
 	}
 	void calculateFollowers(std::vector<std::vector<int>>& followersMatrix) {
 		stateLeft->calculateFollowers(followersMatrix);
