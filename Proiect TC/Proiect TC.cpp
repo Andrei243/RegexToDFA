@@ -1,17 +1,147 @@
-// Proiect TC.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+//Tema 1 Tehnici de compilare  Problema 2
+//Costea Calin
+//Nitu Mandel-Andrei
 
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include "DotState.h"
-#include "LambdaState.h"
-#include "NodeState.h"
-#include "OrState.h"
-#include "StarState.h"
 #include <map>
 #include <set>
 #include <queue>
+
+std::vector<int>appendUnique(std::vector<int> left, std::vector<int> right) {
+	left.insert(left.end(), right.begin(), right.end());
+	std::set<int> aux(left.begin(), left.end());
+	std::vector<int> result;
+	result.assign(aux.begin(), aux.end());
+	return result;
+}
+
+class State {
+public:
+	virtual bool isNullable() = 0;
+	virtual std::vector<int> firstPos() = 0;
+	virtual std::vector<int> lastPos() = 0;
+	virtual void calculateFollowers(std::vector<std::vector<int>>& followers) {};
+
+};
+
+class DotState :public State {
+private:
+	State* stateLeft;
+	State* stateRight;
+public:
+	DotState(State* stateLeft, State* stateRight) {
+		this->stateLeft = stateLeft;
+		this->stateRight = stateRight;
+	}
+	bool isNullable() {
+		return stateLeft->isNullable() && stateRight->isNullable();
+	}
+	std::vector<int> firstPos() {
+		return appendUnique(stateLeft->firstPos(), !stateLeft->isNullable() ? std::vector<int>() : stateRight->firstPos());
+	}
+
+	std::vector<int> lastPos() {
+		return appendUnique(stateRight->lastPos(), !stateRight->isNullable() ? std::vector<int>() : stateLeft->lastPos());
+	}
+	void calculateFollowers(std::vector<std::vector<int>>& followersMatrix) {
+		stateLeft->calculateFollowers(followersMatrix);
+		stateRight->calculateFollowers(followersMatrix);
+		for (int i : stateLeft->lastPos()) {
+			for (int j : stateRight->firstPos()) {
+				followersMatrix[i].push_back(j);
+			}
+		}
+
+	}
+	~DotState() {
+		delete stateLeft;
+		delete stateRight;
+	}
+
+};
+
+class NodeState :public State {
+	int position;
+	char character;
+public:
+	NodeState(int position, char character) {
+		this->position = position;
+		this->character = character;
+	}
+
+	bool isNullable() {
+		return false;
+	}
+	std::vector<int> firstPos() {
+		return std::vector<int>(1, position);
+	}
+	std::vector<int> lastPos() {
+		return std::vector<int>(1, position);
+	}
+
+
+};
+
+class OrState :public State {
+
+	State* stateLeft;
+	State* stateRight;
+public:
+	OrState(State* stateLeft, State* stateRight) {
+		this->stateLeft = stateLeft;
+		this->stateRight = stateRight;
+	}
+	bool isNullable() {
+		return stateLeft->isNullable() || stateRight->isNullable();
+	}
+	std::vector<int> firstPos() {
+		return appendUnique(stateLeft->firstPos(), stateRight->firstPos());
+	}
+
+	std::vector<int> lastPos() {
+		return appendUnique(stateRight->lastPos(), stateLeft->lastPos());
+	}
+	void calculateFollowers(std::vector<std::vector<int>>& followersMatrix) {
+		stateLeft->calculateFollowers(followersMatrix);
+		stateRight->calculateFollowers(followersMatrix);
+
+	}
+	~OrState() {
+		delete stateLeft;
+		delete stateRight;
+	}
+
+};
+class StarState :public State {
+	State* state;
+public:
+	StarState(State* state) {
+		this->state = state;
+	}
+	bool isNullable() {
+		return true;
+	}
+	std::vector<int> firstPos() {
+		return state->firstPos();
+	}
+	std::vector<int> lastPos() {
+		return state->lastPos();
+	}
+	void calculateFollowers(std::vector<std::vector<int>>& followersMatrix) {
+		state->calculateFollowers(followersMatrix);
+		for (int i : lastPos()) {
+			for (int j : firstPos()) {
+				followersMatrix[i].push_back(j);
+			}
+		}
+	}
+
+	~StarState() {
+		delete state;
+	}
+};
 
 using namespace std;
 
@@ -152,7 +282,6 @@ string convertRegexToPolishForm(string regex) {
 
 int main()
 {
-
 	ifstream in("regex.txt", ifstream::in);
 	string regex;
 	in >> regex;
@@ -237,7 +366,7 @@ int main()
 		}
 
 	}
-
+	delete state;
 	return 0;
 
 }
