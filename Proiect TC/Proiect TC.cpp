@@ -2,9 +2,11 @@
 //Costea Calin
 //Nitu Mandel-Andrei
 
+
+//Utilizare proram: se introduce un fisier cu numele regex.txt in acelasi fisier cu executabilul si apoi se da drumul la aplicatie
+
 #include <iostream>
 #include <fstream>
-#include <cstring>
 #include <map>
 #include <set>
 #include <queue>
@@ -284,7 +286,12 @@ int main()
 {
 	ifstream in("regex.txt", ifstream::in);
 	string regex;
+	in.seekg(0, in.end);
+	int length = in.tellg();
+	in.seekg(0);
+
 	in >> regex;
+
 	regex += "#";
 	string polish = convertRegexToPolishForm(regex);
 
@@ -367,6 +374,8 @@ int main()
 
 	}
 	delete state;
+	int x;
+	cin >> x;
 	return 0;
 
 }

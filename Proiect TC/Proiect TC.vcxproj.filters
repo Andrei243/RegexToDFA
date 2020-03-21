@@ -20,22 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="State.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="LambdaState.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NodeState.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DotState.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OrState.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StarState.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

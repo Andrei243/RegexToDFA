@@ -150,12 +150,7 @@
     <ClCompile Include="Proiect TC.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DotState.h" />
     <ClInclude Include="LambdaState.h" />
-    <ClInclude Include="NodeState.h" />
-    <ClInclude Include="OrState.h" />
-    <ClInclude Include="StarState.h" />
-    <ClInclude Include="State.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="regex.txt" />
