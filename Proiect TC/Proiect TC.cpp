@@ -3,7 +3,7 @@
 //Nitu Mandel-Andrei
 
 
-//Utilizare proram: se introduce un fisier cu numele regex.txt in acelasi fisier cu executabilul si apoi se da drumul la aplicatie
+//Utilizare program: se introduce un fisier cu numele regex.txt in acelasi fisier cu executabilul si apoi se da drumul la aplicatie
 
 #include <iostream>
 #include <fstream>
@@ -260,12 +260,13 @@ string convertRegexToPolishForm(string regex) {
 			break; }
 		case paranthesisLeft: {
 			string interior;
-			interior.assign(regex.begin() + i + 1, regex.begin() + findRightParanthesis(regex, i + 1) + 1);
+			interior.assign(regex.begin() + i + 2, regex.begin() + findRightParanthesis(regex, i + 1) + 1);
 			string str;
 			str.append(convertRegexToPolishForm(interior));
 			i += interior.size() + 2;
 			if (i < regex.size() - 1 && regex[i] == '*') {
 				str.append("*");
+				i++;
 			}
 			if (polish != "") {
 				str.append(".");
@@ -273,7 +274,6 @@ string convertRegexToPolishForm(string regex) {
 			polish.append(str);
 			break; }
 		case paranthesisRight: {
-			i++;
 			break; }
 
 		}
@@ -286,9 +286,6 @@ int main()
 {
 	ifstream in("regex.txt", ifstream::in);
 	string regex;
-	in.seekg(0, in.end);
-	int length = in.tellg();
-	in.seekg(0);
 
 	in >> regex;
 
