@@ -219,7 +219,7 @@ State* convertRegexToTree(string regex) {
 
 int findRightParanthesis(string characters, int offset) {
 	int leftParanthesisFound = 0;
-	for (int i = offset + 1; i < (int)characters.size(); i++) {
+	for (int i = offset; i < characters.size(); i++) {
 		if (characters[i] == '(') {
 			leftParanthesisFound++;
 		}
@@ -260,10 +260,10 @@ string convertRegexToPolishForm(string regex) {
 			break; }
 		case paranthesisLeft: {
 			string interior;
-			interior.assign(regex.begin() + i + 2, regex.begin() + findRightParanthesis(regex, i + 1) + 1);
+			interior.assign(regex.begin() + i + 1, regex.begin() + findRightParanthesis(regex, i + 1) + 1);
 			string str;
 			str.append(convertRegexToPolishForm(interior));
-			i += interior.size() + 2;
+			i += interior.size() + 1;
 			if (i < regex.size() - 1 && regex[i] == '*') {
 				str.append("*");
 				i++;
